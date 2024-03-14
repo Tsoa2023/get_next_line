@@ -6,44 +6,62 @@
 /*   By: fharifen <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 10:13:18 by fharifen          #+#    #+#             */
-/*   Updated: 2024/03/08 16:55:01 by fharifen         ###   ########.fr       */
+/*   Updated: 2024/03/14 14:12:42 by fharifen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
 
-char	*fill_line(char *s)
+static char	*cut_rest(char *line)
 {
-	int	i;
-	int	j;
-	char	*line;
-
-	i = 0;
-	j = 0;
-	line = ft_strdup("");
-	while (s[i])
-	{
-		if (s[i] == '\n')
-			break;
-		i++;
-	}
-	line = ft_substr(s, j, i);
-	return (line);
-}
-
-char	*fill_rest(char *s)
-{
-	int	i;
-	int	j;
+	int		i;
 	char	*rest;
 
+	if (!line)
+		return (NULL);
 	i = 0;
-	rest = NULL;
-	while (s[i] != '\n')
+	while (line[i] != '\n' && line[i] != '\0')
 		i++;
-	j = ft_strlen(s) - i;
-	rest = ft_substr(s, i + 1, j);
+	if (line[i] == '\0' || line[1] == '\0')
+		return (NULL);
+	rest = ft_substr(line, i + 1, ft_strlen(line) - i);
+	return (rest);
+}
+
+static char	*cut_line(char *line_buffer)
+{
+	int	i;
+	int	len;
+
+	if (!line_buffer)
+		return (NULL);
+	i = 0;
+	while (line_buffer[i] != '\n' && line_buffer[i] != '\0')
+		i++;
+	i++;
+	len = ft_strlen(line_buffer);
+	while (i < len)
+		line_buffer[i++] = '\0';
+	return (line_buffer);
+}
+
+static char	*add_line_buffer(int fd,char *rest,char *buf)
+{
+	int		read_c;
+
+	read_c = 1;
+	while (!ft_strchr(rest, '\n') && read_c != 0)
+	{
+		read_c = read(fd, buf, BUFFER_SIZE);
+		buf[read_c] = '\0';
+		rest = ft_strjoin(rest, buf);
+	}
+	free(buf);
+	if (*rest == '\0')
+	{
+		free(rest);
+		return (NULL);
+	}
 	return (rest);
 }
 
@@ -51,48 +69,23 @@ char	*get_next_line(int fd)
 {
 	char		*buf;
 	char		*line;
-	char		*tmp;
+	char		*line_left;
 	static char	*rest;
-	int			ret;
 
-	line = ft_strdup("");
-	tmp = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!tmp)
-		return (NULL);
-	buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (rest)
+	if (fd < 0 || BUFFER_SIZE <= 0  || read(fd, 0, 0) < 0)
 	{
-		tmp = ft_strjoin(tmp, rest);
 		free(rest);
-	}
-	while ((ret = read(fd, buf, BUFFER_SIZE)))
-	{
-		tmp = ft_strjoin(tmp, buf);
-		if (ft_strchr(buf, '\n'))
-			break;
-	}
-	line = fill_line(tmp);	
-	if (ret == 0)
+		rest = NULL;
 		return (NULL);
-	rest = fill_rest(tmp);	
-	return (line);
-}
-
-int main(void)
-{
-	int	fd;
-	char *str;
-
-	fd = open("File_toGET", O_RDONLY);
-	if (fd == -1)
-		printf("Error to open file\n");
-	while (1)
-	{
-		str = get_next_line(fd);
-		if (str == NULL)
-			break;
-		printf("%s\n", str);
-		free(str);
 	}
-	return (0);
+	buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buf)
+		return (NULL);
+	line = add_line_buffer(fd, rest, buf);
+	buf = NULL;
+	if (!line)
+		return (NULL);
+	rest = cut_rest(line);	
+	line_left = cut_line(line);
+	return (line_left);
 }

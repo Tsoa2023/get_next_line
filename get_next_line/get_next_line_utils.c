@@ -6,7 +6,7 @@
 /*   By: fharifen <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 10:14:22 by fharifen          #+#    #+#             */
-/*   Updated: 2024/03/14 14:12:46 by fharifen         ###   ########.fr       */
+/*   Updated: 2024/03/16 17:15:27 by fharifen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,34 +37,16 @@ char	*ft_strchr(const char *s, int c)
 			return ((char *)&s[i]);
 		i++;
 	}
+	if (s[i] == (char)c)
+		return ((char *) &s[i]);
 	return (NULL);
-}
-
-char	*ft_strdup(const char *s)
-{
-	int	i;
-	char	*new;
-	
-	if (!s)
-		return (NULL);
-	new = (char *)malloc(sizeof(char) * ft_strlen(s) + 1);
-	if (!new)
-		return (NULL);
-	i = 0;
-	while (s[i])
-	{
-		new[i] = s[i];
-		i++;
-	}
-	new[i] = '\0';
-	return (new);
 }
 
 char	*ft_substr(char *s, unsigned int start, size_t len)
 {
 	char	*str;
 	size_t	i;
-	
+
 	i = 0;
 	if (!s)
 		return (NULL);
@@ -100,19 +82,17 @@ void	ft_strcpy(char *str, char *s1, char *s2)
 	str[i] = '\0';
 }
 
-char *ft_strjoin(char *s1, char *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*str;
-	size_t	len;
+	size_t	len;	
 
-	if (s1 == NULL)
-		s1 = ft_strdup("\0");
 	len = ft_strlen(s1) + ft_strlen(s2);
 	str = (char *)malloc(sizeof(char) * len + 1);
 	if (!str)
 		return (NULL);
 	ft_strcpy(str, s1, s2);
-	if (s1 != NULL)
+	if (s1)
 		free(s1);
 	return (str);
 }

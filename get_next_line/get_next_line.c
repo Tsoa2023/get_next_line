@@ -6,18 +6,19 @@
 /*   By: fharifen <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 10:13:18 by fharifen          #+#    #+#             */
-/*   Updated: 2024/03/14 14:12:42 by fharifen         ###   ########.fr       */
+/*   Updated: 2024/03/16 17:29:47 by fharifen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*cut_rest(char *line)
+static char	*split_line(char *line)
 {
 	int		i;
+	int		len;
 	char	*rest;
 
-	if (!line)
+	if (line == NULL || line[0] == '\0')
 		return (NULL);
 	i = 0;
 	while (line[i] != '\n' && line[i] != '\0')
@@ -25,27 +26,14 @@ static char	*cut_rest(char *line)
 	if (line[i] == '\0' || line[1] == '\0')
 		return (NULL);
 	rest = ft_substr(line, i + 1, ft_strlen(line) - i);
+	i++;
+	len = ft_strlen(line);
+	while (i < len)
+		line[i++] = '\0';
 	return (rest);
 }
 
-static char	*cut_line(char *line_buffer)
-{
-	int	i;
-	int	len;
-
-	if (!line_buffer)
-		return (NULL);
-	i = 0;
-	while (line_buffer[i] != '\n' && line_buffer[i] != '\0')
-		i++;
-	i++;
-	len = ft_strlen(line_buffer);
-	while (i < len)
-		line_buffer[i++] = '\0';
-	return (line_buffer);
-}
-
-static char	*add_line_buffer(int fd,char *rest,char *buf)
+static char	*add_line_buffer(int fd, char *rest, char *buf)
 {
 	int		read_c;
 
@@ -57,7 +45,7 @@ static char	*add_line_buffer(int fd,char *rest,char *buf)
 		rest = ft_strjoin(rest, buf);
 	}
 	free(buf);
-	if (*rest == '\0')
+	if (rest[0] == '\0')
 	{
 		free(rest);
 		return (NULL);
@@ -69,23 +57,21 @@ char	*get_next_line(int fd)
 {
 	char		*buf;
 	char		*line;
-	char		*line_left;
 	static char	*rest;
 
-	if (fd < 0 || BUFFER_SIZE <= 0  || read(fd, 0, 0) < 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 	{
 		free(rest);
 		rest = NULL;
 		return (NULL);
 	}
-	buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buf)
 		return (NULL);
 	line = add_line_buffer(fd, rest, buf);
 	buf = NULL;
 	if (!line)
 		return (NULL);
-	rest = cut_rest(line);	
-	line_left = cut_line(line);
-	return (line_left);
+	rest = split_line(line);
+	return (line);
 }

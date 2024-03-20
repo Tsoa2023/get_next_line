@@ -6,7 +6,7 @@
 /*   By: fharifen <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 10:14:22 by fharifen          #+#    #+#             */
-/*   Updated: 2024/03/16 17:15:27 by fharifen         ###   ########.fr       */
+/*   Updated: 2024/03/20 14:02:46 by fharifen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,18 +50,16 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 	i = 0;
 	if (!s)
 		return (NULL);
-	str = (char *)malloc(sizeof(char) * len + 1);
+	str = malloc(sizeof(char) * (len + 1));
 	if (!str)
 		return (NULL);
-	while (i < len)
+	while (s[start])
 	{
-		str[i] = s[start + i];
-		i++;
+		str[i++] = s[start++];
 	}
 	str[i] = '\0';
 	return (str);
 }
-
 void	ft_strcpy(char *str, char *s1, char *s2)
 {
 	size_t	i;
@@ -85,14 +83,21 @@ void	ft_strcpy(char *str, char *s1, char *s2)
 char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*str;
-	size_t	len;	
+	size_t	len;
 
+	if (!s1)
+	{
+		s1 = (char *)malloc(sizeof(char) * 1);
+		s1[0] = '\0';
+	}
+	if (!s1 || !s2)
+		return (NULL);
 	len = ft_strlen(s1) + ft_strlen(s2);
-	str = (char *)malloc(sizeof(char) * len + 1);
+	str = malloc(sizeof(char) * (len + 1));
 	if (!str)
 		return (NULL);
 	ft_strcpy(str, s1, s2);
-	if (s1)
-		free(s1);
+	free(s1);
+	free(s2);
 	return (str);
 }

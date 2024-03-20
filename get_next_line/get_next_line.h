@@ -6,7 +6,7 @@
 /*   By: fharifen <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 10:11:42 by fharifen          #+#    #+#             */
-/*   Updated: 2024/03/16 17:15:19 by fharifen         ###   ########.fr       */
+/*   Updated: 2024/03/20 08:16:23 by fharifen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,6 @@
 
 # include <stdlib.h>
 # include <unistd.h>
-# include <limits.h>
-# include <errno.h>
 
 char	*get_next_line(int fd);
 size_t	ft_strlen(const char *s);

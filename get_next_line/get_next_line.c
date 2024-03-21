@@ -6,21 +6,21 @@
 /*   By: fharifen <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 10:13:18 by fharifen          #+#    #+#             */
-/*   Updated: 2024/03/20 14:30:10 by fharifen         ###   ########.fr       */
+/*   Updated: 2024/03/21 10:54:20 by fharifen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <stdio.h>
 
-static char	*split_line(char *line)
+static char	*split_line(char *line, char *buff)
 {
 	int		i;
 	int		len;
 	char	*rest;
 
-	if (line == NULL || line[0] == '\0')
-		return (NULL);
+	if (line == NULL || !line[0])
+		return (free(buff), NULL);
 	i = 0;
 	while (line[i] != '\n' && line[i] != '\0')
 		i++;
@@ -34,7 +34,7 @@ static char	*split_line(char *line)
 		return (NULL);
 	}
 	i++;
-	while (i < len + 1)
+	while (i < len)
 		line[i++] = '\0';
 	return (rest);
 }
@@ -45,11 +45,11 @@ static char	*add_line_buffer(int fd, char *rest)
 	char		*buf;
 
 	read_c = 1;
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (buf == NULL)
+		return (NULL);
 	while (!ft_strchr(rest, '\n') && read_c != 0)
 	{
-		buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-		if (buf == NULL)
-			return (NULL);
 		read_c = read(fd, buf, BUFFER_SIZE);
 		if (read_c == -1)
 		{
@@ -59,11 +59,11 @@ static char	*add_line_buffer(int fd, char *rest)
 		buf[read_c] = '\0';
 		rest = ft_strjoin(rest, buf);
 	}
+	free(buf);
 	if (rest[0] == '\0')
 	{
-		if (rest)
-			free(rest);
-		rest = NULL;
+		free(rest);
+		return (NULL);
 	}
 	return (rest);
 }
@@ -71,13 +71,11 @@ static char	*add_line_buffer(int fd, char *rest)
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*rest;
+	static char	*rest = NULL;
 
 	if (fd == -1 || BUFFER_SIZE <= 0)
 		return (NULL);
 	line = add_line_buffer(fd, rest);
-	if (!line)
-		return (NULL);
-	rest = split_line(line);
+	rest = split_line(line, rest);
 	return (line);
 }
